@@ -9,7 +9,27 @@ public class TicTacToe {
     static ArrayList<Integer> playerPositions = new ArrayList<>();
     static ArrayList<Integer> cpuPositions = new ArrayList<>();
 
+    static List topRow = Arrays.asList(1, 2, 3);
+    static List midRow = Arrays.asList(4, 5, 6);
+    static List botRow = Arrays.asList(7, 8, 9);
+    static List leftCol = Arrays.asList(1, 4, 7);
+    static List midCol = Arrays.asList(2, 5, 8);
+    static List rightRow = Arrays.asList(3, 6, 9);
+    static List cross1 = Arrays.asList(1, 5, 9);
+    static List cross2 = Arrays.asList(3, 5, 7);
+
+    static List<List> winningConditions = new ArrayList<>();
+
     public static void main(String[] args) {
+
+        winningConditions.add(topRow);
+        winningConditions.add(midRow);
+        winningConditions.add(botRow);
+        winningConditions.add(leftCol);
+        winningConditions.add(midCol);
+        winningConditions.add(rightRow);
+        winningConditions.add(cross1);
+        winningConditions.add(cross2);
 
         char[][] gameBoard = {
                 {'1', '|', '2', '|', '3'},
@@ -60,9 +80,11 @@ public class TicTacToe {
 
             Random rand = new Random();
             int cpuPos = rand.nextInt(9) + 1;
+
             while(playerPositions.contains(cpuPos) || cpuPositions.contains(cpuPos)) {
                 cpuPos = rand.nextInt(9) + 1;
             }
+
             placePiece(gameBoard, cpuPos, "cpu");
 
             printGameBoard(gameBoard);
@@ -73,9 +95,7 @@ public class TicTacToe {
                 System.out.println(result);
                 break;
             }
-
         }
-
     }
 
     public static void printGameBoard(char[][] gameBoard) {
@@ -132,29 +152,7 @@ public class TicTacToe {
 
     }
 
-
     public static String checkWinner() {
-
-        List topRow = Arrays.asList(1, 2, 3);
-        List midRow = Arrays.asList(4, 5, 6);
-        List botRow = Arrays.asList(7, 8, 9);
-        List leftCol = Arrays.asList(1, 4, 7);
-        List midCol = Arrays.asList(2, 5, 8);
-        List rightRow = Arrays.asList(3, 6, 9);
-        List cross1 = Arrays.asList(1, 5, 9);
-        List cross2 = Arrays.asList(3, 5, 7);
-
-        List<List> winningConditions = new ArrayList<>();
-
-        winningConditions.add(topRow);
-        winningConditions.add(midRow);
-        winningConditions.add(botRow);
-        winningConditions.add(leftCol);
-        winningConditions.add(midCol);
-        winningConditions.add(rightRow);
-        winningConditions.add(cross1);
-        winningConditions.add(cross2);
-
         for (List l : winningConditions) {
             if (playerPositions.containsAll(l)) {
                 return "Congratulation you won!";
