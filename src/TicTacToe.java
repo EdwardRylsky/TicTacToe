@@ -53,6 +53,7 @@ public class TicTacToe {
 
             String result = checkWinner();
             if (result.length() > 0) {
+                printGameBoard(gameBoard);
                 System.out.println(result);
                 break;
             }
@@ -68,6 +69,7 @@ public class TicTacToe {
 
             result = checkWinner();
             if (result.length() > 0) {
+                printGameBoard(gameBoard);
                 System.out.println(result);
                 break;
             }
