@@ -133,12 +133,16 @@ public class TicTacToe {
         winningConditions.add(cross2);
 
         for (List l : winningConditions) {
-            if(playerPositions.containsAll(l)) {
+            if (playerPositions.containsAll(l)) {
                 return "Congratulation you won!";
-            }else if (cpuPositions.containsAll(l)) {
+            }
+            if (cpuPositions.containsAll(l)) {
                 return "CPU wins! Sorry :(";
-            }else if (playerPositions.size() + cpuPositions.size() == 9) return "CAT";
+            }
         }
+        // Вынес следующий if из цикла, т.к. если игрок делает последний возможный ход и он не попадает под первое условие победы, то объявляется ничья.
+        // Хотя в видео он включен в цикл, ссылка с таймкодом: https://youtu.be/gQb3dE-y1S4?t=1380
+        if (playerPositions.size() + cpuPositions.size() == 9) return "TIE!";
         return "";
     }
 }
