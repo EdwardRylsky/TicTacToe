@@ -11,13 +11,20 @@ public class TicTacToe {
 
     public static void main(String[] args) {
 
-        char[][] gameBoard = {{' ', '|', ' ', '|', ' '},
+        char[][] gameBoard = {
+                {'1', '|', '2', '|', '3'},
                 {'—', '+', '—', '+', '—'},
-                {' ', '|', ' ', '|', ' '},
+                {'4', '|', '5', '|', '6'},
                 {'—', '+', '—', '+', '—'},
-                {' ', '|', ' ', '|', ' '}};
+                {'7', '|', '8', '|', '9'}}; //добавил нумерацию игрового поля при старте
 
         printGameBoard(gameBoard);
+
+        for(int x = 0; x < 5; x = x + 2) {
+            for (int y = 0; y < 5; y = y + 2) {
+                gameBoard[x][y]=' ';
+            }
+        }
 
         while (true) {
             Scanner scan = new Scanner(System.in);
