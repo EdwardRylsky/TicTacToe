@@ -21,11 +21,25 @@ public class TicTacToe {
 
         while (true) {
             Scanner scan = new Scanner(System.in);
+            int playerPos;
             System.out.print("Enter your placement (1-9): ");
-            int playerPos = scan.nextInt();
-            while(playerPositions.contains(playerPos) || cpuPositions.contains(playerPositions)){
+            String name = scan.nextLine();
+            while (!name.matches("[1-9]")) {
+                System.out.print("Position incorrect! Enter a correct position:");
+                scan = new Scanner(System.in);
+                name = scan.nextLine();
+            }
+            playerPos = Integer.parseInt(name);
+            while (playerPositions.contains(playerPos) || cpuPositions.contains(playerPos)) {
                 System.out.print("Position taken! Enter a free position:");
-                playerPos = scan.nextInt();
+                scan = new Scanner(System.in);
+                name = scan.nextLine();
+                while (!name.matches("[1-9]")) {
+                    System.out.print("Position incorrect! Enter a correct position:");
+                    scan = new Scanner(System.in);
+                    name = scan.nextLine();
+                }
+                playerPos = Integer.parseInt(name);
             }
 
             placePiece(gameBoard, playerPos, "player");
