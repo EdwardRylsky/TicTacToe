@@ -2,13 +2,6 @@ import java.util.*;
 
 public class Game {
 
-    static char[][] gameBoard = {
-            {'1', '|', '2', '|', '3'},
-            {'—', '+', '—', '+', '—'},
-            {'4', '|', '5', '|', '6'},
-            {'—', '+', '—', '+', '—'},
-            {'7', '|', '8', '|', '9'}}; //добавил нумерацию игрового поля при старте
-
     static List<Integer> topRow = Arrays.asList(1, 2, 3);
     static List<Integer> midRow = Arrays.asList(4, 5, 6);
     static List<Integer> botRow = Arrays.asList(7, 8, 9);
@@ -18,15 +11,10 @@ public class Game {
     static List<Integer> cross1 = Arrays.asList(1, 5, 9);
     static List<Integer> cross2 = Arrays.asList(3, 5, 7);
 
-    static List<List<Integer>> winningConditions = new ArrayList<>();
+    public void startGame(Player player1, Player player2, boolean player1First){
 
-    static boolean isPvP = false;
+        List<List<Integer>> winningConditions = new ArrayList<>();
 
-    static Player currentPlayer;
-
-    static String result;
-
-    public static void startGame(Player player1, Player player2, boolean player1First){
         winningConditions.add(topRow);
         winningConditions.add(midRow);
         winningConditions.add(botRow);
@@ -36,11 +24,22 @@ public class Game {
         winningConditions.add(cross1);
         winningConditions.add(cross2);
 
+        char[][] gameBoard = {
+                {'1', '|', '2', '|', '3'},
+                {'—', '+', '—', '+', '—'},
+                {'4', '|', '5', '|', '6'},
+                {'—', '+', '—', '+', '—'},
+                {'7', '|', '8', '|', '9'}}; //добавил нумерацию игрового поля при старте
+
+        boolean isPvP = !player1.isComputer && !player2.isComputer;
+
+        Player currentPlayer = player1;
+
+        String result;
+
         int playerPos;
 
-        isPvP = !player1.isComputer && !player2.isComputer;
-
-        printGameBoard();
+        printGameBoard(gameBoard);
 
         for(int x = 0; x < 5; x = x + 2) {
             for (int y = 0; y < 5; y = y + 2) {
@@ -78,15 +77,14 @@ public class Game {
                     playerPos = Integer.parseInt(name);
                 }
 
-                placePiece(playerPos, currentPlayer);
-                printGameBoard();
+                placePiece(gameBoard, playerPos, currentPlayer);
+                printGameBoard(gameBoard);
 
-                if (player1First) player1First = false;
-                else player1First = true;
+                player1First = !player1First;
 
-                result = checkWinner(player1, player2);
+                result = checkWinner(player1, player2, winningConditions);
                 if (result.length() > 0) {
-                    printGameBoard();
+                    printGameBoard(gameBoard);
                     System.out.println(result);
                     player1.positions.clear();
                     player2.positions.clear();
@@ -104,13 +102,13 @@ public class Game {
                 cpuPos = rand.nextInt(9) + 1;
             }
 
-            placePiece(cpuPos, player2);
+            placePiece(gameBoard, cpuPos, player2);
 
-            printGameBoard();
+            printGameBoard(gameBoard);
 
-            result = checkWinner(player1, player2);
+            result = checkWinner(player1, player2, winningConditions);
             if (result.length() > 0) {
-                printGameBoard();
+                printGameBoard(gameBoard);
                 System.out.println(result);
                 player1.positions.clear();
                 player2.positions.clear();
@@ -123,7 +121,7 @@ public class Game {
     }
 }
 
-    public static void printGameBoard() {
+    public static void printGameBoard(char[][] gameBoard) {
         for (char[] row : gameBoard) {
             for (char c : row) {
                 System.out.print(c);
@@ -132,7 +130,7 @@ public class Game {
         }
     }
 
-    public static void placePiece(int pos, Player player) {
+    public static void placePiece(char[][] gameBoard, int pos, Player player) {
         player.positions.add(pos);
         switch (pos) {
             //этот сахар подсказала IntelliJ IDEA
@@ -148,13 +146,13 @@ public class Game {
         }
     }
 
-    public static String checkWinner(Player player1, Player player2) {
+    public static String checkWinner(Player player1, Player player2, List<List<Integer>> winningConditions) {
         for (List<Integer> l : winningConditions) {
             if (player1.positions.containsAll(l)) {
                 return "Congratulation "+player1.name+", you won!";
             }
             if (player2.positions.containsAll(l)) {
-                if(isPvP) {
+                if(!player1.isComputer && !player2.isComputer) {
                     return "Congratulation " + player2.name + ", you won!";
                 }
                 return "Computer wins! Sorry :(";
