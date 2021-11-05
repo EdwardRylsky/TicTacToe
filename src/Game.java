@@ -2,27 +2,27 @@ import java.util.*;
 
 public class Game {
 
-    static List<Integer> topRow = Arrays.asList(1, 2, 3);
-    static List<Integer> midRow = Arrays.asList(4, 5, 6);
-    static List<Integer> botRow = Arrays.asList(7, 8, 9);
-    static List<Integer> leftCol = Arrays.asList(1, 4, 7);
-    static List<Integer> midCol = Arrays.asList(2, 5, 8);
-    static List<Integer> rightRow = Arrays.asList(3, 6, 9);
-    static List<Integer> cross1 = Arrays.asList(1, 5, 9);
-    static List<Integer> cross2 = Arrays.asList(3, 5, 7);
+    private static final List<Integer> TOPROW   = Arrays.asList(1, 2, 3);
+    private static final List<Integer> MIDROW   = Arrays.asList(4, 5, 6);
+    private static final List<Integer> BOTROW   = Arrays.asList(7, 8, 9);
+    private static final List<Integer> LEFTCOL  = Arrays.asList(1, 4, 7);
+    private static final List<Integer> MIDCOL   = Arrays.asList(2, 5, 8);
+    private static final List<Integer> RIGHTROW = Arrays.asList(3, 6, 9);
+    private static final List<Integer> CROSS1   = Arrays.asList(1, 5, 9);
+    private static final List<Integer> CROSS2   = Arrays.asList(3, 5, 7);
 
-    public void startGame(Player player1, Player player2, boolean player1First){
+    private static final List<List<Integer>> WINCONDITIONS = new ArrayList<>(){{
+        add(TOPROW);
+        add(MIDROW);
+        add(BOTROW);
+        add(LEFTCOL);
+        add(MIDCOL);
+        add(RIGHTROW);
+        add(CROSS1);
+        add(CROSS2);
+    }};
 
-        List<List<Integer>> winningConditions = new ArrayList<>();
-
-        winningConditions.add(topRow);
-        winningConditions.add(midRow);
-        winningConditions.add(botRow);
-        winningConditions.add(leftCol);
-        winningConditions.add(midCol);
-        winningConditions.add(rightRow);
-        winningConditions.add(cross1);
-        winningConditions.add(cross2);
+    public void newGame(Player player1, Player player2, boolean player1Move) {
 
         char[][] gameBoard = {
                 {'1', '|', '2', '|', '3'},
@@ -31,97 +31,93 @@ public class Game {
                 {'—', '+', '—', '+', '—'},
                 {'7', '|', '8', '|', '9'}}; //добавил нумерацию игрового поля при старте
 
-        boolean isPvP = !player1.isComputer && !player2.isComputer;
+        Player currentPlayer;
 
-        Player currentPlayer = player1;
+        ArrayList<Integer> player1Moves = new ArrayList<>();
+        ArrayList<Integer> player2Moves = new ArrayList<>();
+        var currentPlayerMovesList = player1Moves;
 
-        String result;
+        if (player1Move) {
+            currentPlayer = player1;
+            currentPlayerMovesList = player1Moves;
+        } else {
+            currentPlayer = player2;
+            currentPlayerMovesList = player2Moves;
+        }
 
-        int playerPos;
+        int moveNumber = 0;
 
         printGameBoard(gameBoard);
 
-        for(int x = 0; x < 5; x = x + 2) {
+        //очищаем стартовую нумерацию поля
+        for (int x = 0; x < 5; x = x + 2) {
             for (int y = 0; y < 5; y = y + 2) {
-                gameBoard[x][y]=' ';
+                gameBoard[x][y] = ' ';
             }
         }
 
+        boolean isPvP = !player1.isComputer && !player2.isComputer;
+        String result;
+        int playerPos;
+
         while (true) {
+            moveNumber++;
+            if (player1Move) {
+                currentPlayer = player1;
+                currentPlayerMovesList = player1Moves;
+            } else {
+                currentPlayer = player2;
+                currentPlayerMovesList = player2Moves;
+            }
+            player1Move = !player1Move;
+
             if (isPvP) {
-                if (player1First) {
-                    currentPlayer = player1;
-                } else currentPlayer = player2;
                 System.out.println("Now turn " + currentPlayer.name);
             }
 
-            if (isPvP || (!isPvP && player1First)) {
+            if (!currentPlayer.isComputer) {
                 Scanner scan = new Scanner(System.in);
                 System.out.print("Enter your placement (1-9): ");
-                String name = scan.nextLine();
-                while (!name.matches("[1-9]")) {
-                    System.out.print("Position incorrect! Enter a correct position:");
-                    scan = new Scanner(System.in);
-                    name = scan.nextLine();
-                }
-                playerPos = Integer.parseInt(name);
-                while (player1.positions.contains(playerPos) || player2.positions.contains(playerPos)) {
-                    System.out.print("Position taken! Enter a free position:");
-                    scan = new Scanner(System.in);
-                    name = scan.nextLine();
-                    while (!name.matches("[1-9]")) {
-                        System.out.print("Position incorrect! Enter a correct position:");
-                        scan = new Scanner(System.in);
-                        name = scan.nextLine();
-                    }
-                    playerPos = Integer.parseInt(name);
-                }
+                playerPos = checkInputPosition(scan, player1Moves, player2Moves);
 
-                placePiece(gameBoard, playerPos, currentPlayer);
-                printGameBoard(gameBoard);
+                placePiece(gameBoard, playerPos, currentPlayer, currentPlayerMovesList);
+                //printGameBoard(gameBoard);
 
-                player1First = !player1First;
-
-                result = checkWinner(player1, player2, winningConditions);
+                result = checkWinner(currentPlayer, currentPlayerMovesList, moveNumber);
                 if (result.length() > 0) {
                     printGameBoard(gameBoard);
                     System.out.println(result);
-                    player1.positions.clear();
-                    player2.positions.clear();
                     System.out.println("Enter any key to return main menu");
                     scan.nextLine();
                     break;
                 }
+            } else  {
+                int cpuPos = currentPlayer.turn();
+
+                while (player1Moves.contains(cpuPos) || player2Moves.contains(cpuPos)) {
+                    cpuPos = currentPlayer.turn();
+                }
+
+                placePiece(gameBoard, cpuPos, currentPlayer, currentPlayerMovesList);
+
+
+                //printGameBoard(gameBoard);
+
+                result = checkWinner(currentPlayer, currentPlayerMovesList, moveNumber);
+                if (result.length() > 0) {
+                    printGameBoard(gameBoard);
+                    System.out.println(result);
+                    System.out.println("Enter any key to return main menu");
+                    Scanner scan = new Scanner(System.in);
+                    scan.nextLine();
+                    break;
+                }
             }
-
-        if(!isPvP) {
-            Random rand = new Random();
-            int cpuPos = rand.nextInt(9) + 1;
-
-            while (player1.positions.contains(cpuPos) || player2.positions.contains(cpuPos)) {
-                cpuPos = rand.nextInt(9) + 1;
-            }
-
-            placePiece(gameBoard, cpuPos, player2);
-
             printGameBoard(gameBoard);
-
-            result = checkWinner(player1, player2, winningConditions);
-            if (result.length() > 0) {
-                printGameBoard(gameBoard);
-                System.out.println(result);
-                player1.positions.clear();
-                player2.positions.clear();
-                System.out.println("Enter any key to return main menu");
-                Scanner scan = new Scanner(System.in);
-                scan.nextLine();
-                break;
-            }
         }
     }
-}
 
-    public static void printGameBoard(char[][] gameBoard) {
+    private static void printGameBoard(char[][] gameBoard) {
         for (char[] row : gameBoard) {
             for (char c : row) {
                 System.out.print(c);
@@ -130,8 +126,8 @@ public class Game {
         }
     }
 
-    public static void placePiece(char[][] gameBoard, int pos, Player player) {
-        player.positions.add(pos);
+    private static void placePiece(char[][] gameBoard, int pos, Player player, ArrayList<Integer> currentPlayerMovesList) {
+        currentPlayerMovesList.add(pos);
         switch (pos) {
             //этот сахар подсказала IntelliJ IDEA
             case 1 -> gameBoard[0][0] = player.symbol;
@@ -146,21 +142,42 @@ public class Game {
         }
     }
 
-    public static String checkWinner(Player player1, Player player2, List<List<Integer>> winningConditions) {
-        for (List<Integer> l : winningConditions) {
-            if (player1.positions.containsAll(l)) {
-                return "Congratulation "+player1.name+", you won!";
+    private static int checkInputPosition(Scanner scan, ArrayList<Integer> player1Moves, ArrayList<Integer> player2Moves){
+        int position;
+        var input = scan.nextLine();
+
+        while (!input.matches("[1-9]")) {
+            System.out.print("Position incorrect! Enter a correct position:");
+            scan = new Scanner(System.in);
+            input = scan.nextLine();
+        }
+        position = Integer.parseInt(input);
+
+        while (player1Moves.contains(position) || player2Moves.contains(position)) {
+            System.out.print("Position taken! Enter a free position:");
+            scan = new Scanner(System.in);
+            input = scan.nextLine();
+            while (!input.matches("[1-9]")) {
+                System.out.print("Position incorrect! Enter a correct position:");
+                scan = new Scanner(System.in);
+                input = scan.nextLine();
             }
-            if (player2.positions.containsAll(l)) {
-                if(!player1.isComputer && !player2.isComputer) {
-                    return "Congratulation " + player2.name + ", you won!";
-                }
-                return "Computer wins! Sorry :(";
+            position = Integer.parseInt(input);
+        }
+        return position;
+    }
+
+    private static String checkWinner(Player currentPlayer, List<Integer> currentPlayerMovesList, int moveNumber) {
+        for (List<Integer> l : WINCONDITIONS) {
+            if (currentPlayerMovesList.containsAll(l)) {
+                if (!currentPlayer.isComputer) {
+                    return "Congratulation " + currentPlayer.name + ", you won!";
+                } else return "Computer wins! Sorry :(";
             }
         }
         // Вынес следующий if из цикла, т.к. если игрок делает последний возможный ход и он не попадает под первое условие победы, то объявляется ничья.
         // Хотя в видео он включен в цикл, ссылка с таймкодом: https://youtu.be/gQb3dE-y1S4?t=1380
-        if (player1.positions.size() + player2.positions.size() == 9) return "TIE!";
+        if (moveNumber == 9) return "TIE!";
         return "";
     }
 }
