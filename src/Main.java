@@ -4,19 +4,18 @@ public class Main {
 
     static int[] commandByLevel = {-1, -1, -1, -1};
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         Scanner scanner = new Scanner(System.in);
 
-        Player player1 = new Human();
-        Player player2 = new Human("Player 2", 'O');
-        Player computer = new AI(0);
-
+        Player player1 = new Player();
+        Player player2 = new Player("Player 2", 'O');
+        Player computer = new Player(0);
 
         while (true) {
             while (commandByLevel[0] == -1){
                 printStartMenu();
-                commandByLevel[0] = checkInputCommand(scanner, 1);
+                commandByLevel[0] = checkInputCommand(scanner, 2);
             }
             if (commandByLevel[0] == 1) {
                 while (commandByLevel[1] == -1){
@@ -30,12 +29,12 @@ public class Main {
                         commandByLevel[2] = checkInputCommand(scanner, 3);
                     }
                     if (commandByLevel[2] == 1) {
-                        Game game = new Game();
+                        Game game = Game.getInstance();
                         game.newGame(player1, computer, true);
                         goToMainMenu();
                     }
                     if (commandByLevel[2] == 2) {
-                        Game game = new Game();
+                        Game game = Game.getInstance();
                         game.newGame(player1, computer, false);
                         goToMainMenu();
                     }
@@ -47,21 +46,21 @@ public class Main {
                 //PvP
                 if (commandByLevel[1] == 2) {
                     while (commandByLevel[2] == -1) {
-                        System.out.println("Current player 1 name '" + player1.name + "' and symbol '" + player1.symbol + "'");
-                        System.out.println("Current player 2 name '" + player2.name + "' and symbol '" + player2.symbol + "'");
-                        if(player1.name.equals(player2.name)) System.out.println("!!!WARNING!!! Both player have same name");
+                        System.out.println("Current player 1 name '" + player1.getName() + "' and symbol '" + player1.getSymbol() + "'");
+                        System.out.println("Current player 2 name '" + player2.getName() + "' and symbol '" + player2.getSymbol() + "'");
+                        if(player1.getName().equalsIgnoreCase(player2.getName())) System.out.println("!!!WARNING!!! Both player have same name");
                         printStartPvPGameMenu();
                         commandByLevel[2] = checkInputCommand(scanner, 4);
                     }
 
                     if (commandByLevel[2] == 1) {
-                        Game game = new Game();
+                        Game game = Game.getInstance();
                         game.newGame(player1, player2, true);
                         goToMainMenu();
                     }
 
                     if (commandByLevel[2] == 2) {
-                        Game game = new Game();
+                        Game game = Game.getInstance();
                         game.newGame(player1, player2, false);
                         goToMainMenu();
                     }
@@ -82,6 +81,9 @@ public class Main {
                     commandByLevel[1] = -1;
                 }
             } else if (commandByLevel[0] == 2) {
+                Game game = Game.getInstance();
+                game.loadGame();
+                goToMainMenu();
             } else if (commandByLevel[0] == 0) {
                 System.out.println("Good bye!");
                 break;
@@ -91,7 +93,7 @@ public class Main {
 
     private static void printStartMenu() {
         System.out.println("1. Start game");
-        //System.out.println("2. Load game");
+        System.out.println("2. Load game");
         System.out.println("0. Exit");
     }
 
@@ -134,23 +136,23 @@ public class Main {
     }
 
     private static void customizePlayer(Scanner scanner, Player player) {
-        System.out.println("Current player name '" + player.name + "' and symbol '" + player.symbol + "'");
+        System.out.println("Current player name '" + player.getName() + "' and symbol '" + player.getSymbol() + "'");
         while (commandByLevel[3] == -1) {
             printCustomizePlayerMenu();
             commandByLevel[3] = checkInputCommand(scanner, 2);
         }
         if (commandByLevel[3] == 1) {
             commandByLevel[3] = -1;
-            System.out.print("Enter new name for "+player.name+": ");
-            player.name = scanner.nextLine();
+            System.out.print("Enter new name for "+player.getName()+": ");
+            player.setName(scanner.nextLine());
         }
         if (commandByLevel[3] == 2) {
             commandByLevel[3] = -1;
-            System.out.print("Enter new symbol for "+player.name+": ");
+            System.out.print("Enter new symbol for "+player.getName()+": ");
             String input = scanner.nextLine();
             if (input.length() > 1) System.out.print("You enter a string, not a symbol. Game will take first symbol from string");
 
-            player.symbol = input.charAt(0);
+            player.setSymbol(input.charAt(0));
         }
         if (commandByLevel[3] == 0) {
             commandByLevel[3] = -1;
